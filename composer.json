@@ -1,0 +1,9 @@
+{
+    "name": "unicartagena/censo-app",
+    "description": "Aplicación de censo usando DDD y Arquitectura Hexagonal",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
