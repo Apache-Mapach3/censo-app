@@ -35,11 +35,11 @@ class MySQLUsuarioRepository implements UsuarioRepository {
     public function findAll(): array {
      
         $stmt = $this->pdo->query("SELECT * FROM usuario");
-        $usuarios = [];
+        $usuario = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $usuarios[] = new Usuario($row['id'], $row['nombre'], $row['clave'], $row['rol']);
+            $usuario[] = new Usuario($row['id'], $row['nombre'], $row['clave'], $row['rol']);
         }
-        return $usuarios;
+        return $usuario;
     }
 
     public function update(Usuario $usuario): void {
@@ -71,4 +71,10 @@ class MySQLUsuarioRepository implements UsuarioRepository {
 
         return new Usuario($data['id'], $data['nombre'], $data['clave'], $data['rol']);
     }
+
+    public function existsByNombre(string $nombre): bool {
+    $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM usuario WHERE nombre = ?");
+    $stmt->execute([$nombre]);
+    return (int)$stmt->fetchColumn() > 0;
+}
 }
