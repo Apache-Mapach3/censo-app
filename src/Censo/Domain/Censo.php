@@ -31,15 +31,15 @@ class Censo {
 
     private function validar(): void {
         if ($this->numHombres < 0 || $this->numMujeres < 0) {
-            throw new \InvalidArgumentException("Cantidad de personas inválida");
+            throw new \InvalidArgumentException("Cantidad de personas invalida");
         }
 
         if ($this->numHabitaciones <= 0) {
-            throw new \InvalidArgumentException("Debe haber al menos una habitación");
+            throw new \InvalidArgumentException("Debe haber al menos una habitacion");
         }
 
         if ($this->numCamas < 0) {
-            throw new \InvalidArgumentException("Número de camas inválido");
+            throw new \InvalidArgumentException("Numero de camas invalido");
         }
     }
 
