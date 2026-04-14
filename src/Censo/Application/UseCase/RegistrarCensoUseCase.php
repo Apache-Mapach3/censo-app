@@ -11,12 +11,21 @@ class RegistrarCensoUseCase {
 
     public function execute(array $datos): void {
 
-        // Validación mínima
-        if (!isset($datos['nombre'], $datos['fecha'])) {
-            throw new \InvalidArgumentException("Datos incompletos");
+    
+        $camposRequeridos = [
+            'nombre', 'fecha', 'pais', 'departamento', 'ciudad', 'casa',
+            'numHombres', 'numMujeres', 'numAncianosHombres', 'numAncianasMujeres',
+            'numNinos', 'numNinas', 'numHabitaciones', 'numCamas',
+            'tieneAgua', 'tieneLuz', 'tieneAlcantarillado', 'tieneGas',
+            'tieneOtrosServicios', 'nombreSensador'
+        ];
+
+        foreach ($camposRequeridos as $campo) {
+            if (!isset($datos[$campo])) {
+                throw new \InvalidArgumentException("Campo requerido faltante: $campo");
+            }
         }
 
-        // Conversión segura de fecha
         try {
             $fecha = new \DateTime($datos['fecha']);
         } catch (\Exception $e) {
