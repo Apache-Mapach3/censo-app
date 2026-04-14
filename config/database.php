@@ -2,7 +2,7 @@
 // Archivo: config/database.php
 
 $host = 'localhost';
-$db   = 'censo_db';
+$db = 'censo_app';
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';
