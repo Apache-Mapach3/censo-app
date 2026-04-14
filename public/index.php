@@ -15,15 +15,23 @@ $repo = new MySQLUsuarioRepository($pdo);
 $crear = new CrearUsuarioUseCase($repo);
 $login = new AutenticarUsuarioUseCase($repo);
 
+// Instanciamos el controlador con ambos casos de uso
 $controller = new UsuarioController($crear, $login);
 
-// simulación de request
+// Simulación de request (Enrutador básico)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    
     if ($_POST['action'] === 'register') {
+        
+
         $controller->registrar($_POST);
+
     } elseif ($_POST['action'] === 'login') {
+        
         $controller->login($_POST);
+        
     }
+    
 } else {
     echo "<h1>Sistema de Censo (Estructura Profesional)</h1>";
 }
