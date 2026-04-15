@@ -89,20 +89,17 @@
         <h1>Iniciar Sesión</h1>
         
         <form action="index.php" method="POST">
-            <input type="hidden" name="action" value="login">
-            
-            <div class="form-group">
-                <label for="nombre">Nombre de usuario:</label>
-                <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu usuario" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="clave">Contraseña:</label>
-                <input type="password" id="clave" name="clave" placeholder="Ingresa tu contraseña" required>
-            </div>
-            
-            <button type="submit">Entrar al Sistema</button>
-        </form>
+    <input type="hidden" name="action" value="login_user">
+
+    <label>Usuario:</label>
+    <input type="text" name="nombre" required>
+
+    <label>Contraseña:</label>
+    <input type="password" name="clave" required>
+
+    <button type="submit">Ingresar al Sistema</button>
+    <p>¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+</form>
     </div>
 
 </body>

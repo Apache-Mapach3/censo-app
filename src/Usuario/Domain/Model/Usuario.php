@@ -13,9 +13,9 @@ class Usuario {
     }
 
     private function validar(): void {
-        if (empty($nombre)) {
-    throw new \InvalidArgumentException("Nombre requerido");
-}
+        if (empty($this->nombre)) {
+            throw new \InvalidArgumentException("Nombre requerido");
+        }
 
         if (empty($this->clave)) {
             throw new \InvalidArgumentException("Clave requerida");
