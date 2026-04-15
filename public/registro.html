@@ -341,17 +341,13 @@
                 <input type="hidden" name="action" value="register">
 
                 <div class="form-group">
-                    <label for="nombre">Nombre de usuario</label>
-                    <input type="text" id="nombre" name="nombre"
-                    <div class="form-group">
-                        <label for="nombre">Nombre de usuario</label>
-                        <input type="text" id="nombre" name="nombre" placeholder="Ej: jose_admin" required>
-                    </div>
+                    <label for="nombre">Nombre de Usuario</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ej: jose_admin" required>
+                </div>
 
-                    <div class="form-group">
-                        <label for="clave">Contraseña</label>
-                        <input type="password" id="clave" name="clave" placeholder="Mínimo 6 caracteres" required>
-                    </div>
+                <div class="form-group">
+                    <label for="clave">Contraseña</label>
+                    <input type="password" id="clave" name="clave" placeholder="Mínimo 6 caracteres" required>
                 </div>
 
                 <div class="form-group">
@@ -361,3 +357,25 @@
                             <input type="radio" name="rol" value="admin" required>
                             <div class="rol-icon">🛡️</div>
                             <div class="rol-title">Administrador</div>
+                            <div class="rol-desc">Gestion completa</div>
+                        </label>
+                        <label class="rol-option">
+                            <input type="radio" name="rol" value="usuario">
+                            <div class="rol-icon">📋</div>
+                            <div class="rol-title">Sensador</div>
+                            <div class="rol-desc">Registro de censos</div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Registrar Usuario</button>
+            </form>
+
+            <div class="form-footer">
+                Ya tienes cuenta? <a href="login.html">Inicia sesion aqui</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

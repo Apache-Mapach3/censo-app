@@ -2,3 +2,5 @@
 .env
 .vscode/
 *.log
+public/mysql-8.4/
+public/postgresql/
