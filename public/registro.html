@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro — Sistema de Censo</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:   #0f1f3d;
+            --teal:   #0d7377;
+            --teal2:  #14a085;
+            --gold:   #e8a020;
+            --light:  #f4f6f9;
+            --muted:  #8896a8;
+            --white:  #ffffff;
+            --green:  #0d7355;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--navy);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .panel-left {
+            background: linear-gradient(145deg, #0d7355 0%, var(--navy) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-left::before {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            border-radius: 50%;
+            border: 80px solid rgba(255,255,255,0.04);
+            top: -100px; left: -100px;
+        }
+
+        .panel-left::after {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            border: 60px solid rgba(255,255,255,0.04);
+            bottom: -60px; right: -60px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 60px;
+            z-index: 1;
+        }
+
+        .brand-icon {
+            width: 48px; height: 48px;
+            background: var(--gold);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+        }
+
+        .brand-name {
+            font-family: 'DM Serif Display', serif;
+            font-size: 18px;
+            color: var(--white);
+            line-height: 1.2;
+        }
+
+        .brand-name span {
+            display: block;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .panel-tagline { z-index: 1; }
+
+        .panel-tagline h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 42px;
+            line-height: 1.15;
+            color: var(--white);
+            margin-bottom: 16px;
+        }
+
+        .panel-tagline p {
+            font-size: 15px;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.7;
+            max-width: 320px;
+        }
+
+        .steps {
+            margin-top: 48px;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .step-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-text {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.5;
+        }
+
+        .step-text strong {
+            display: block;
+            color: rgba(255,255,255,0.9);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        /* Panel derecho */
+        .panel-right {
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+        }
+
+        .form-card {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-card h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 30px;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .form-card .subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 36px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1.5px solid #dce2ea;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: var(--navy);
+            background: var(--white);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238896a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(13,115,85,0.12);
+        }
+
+        .rol-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .rol-option {
+            border: 1.5px solid #dce2ea;
+            border-radius: var(--radius);
+            padding: 14px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            position: relative;
+        }
+
+        .rol-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0; height: 0;
+        }
+
+        .rol-option:has(input:checked) {
+            border-color: var(--green);
+            background: rgba(13,115,85,0.05);
+        }
+
+        .rol-icon { font-size: 22px; margin-bottom: 6px; }
+
+        .rol-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .rol-desc {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--green);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s, transform 0.1s;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-submit:hover { background: #0a5c43; }
+        .btn-submit:active { transform: scale(0.99); }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .form-footer a {
+            color: var(--teal);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .form-footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            .panel-left { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel-left">
+        <div class="brand">
+            <div class="brand-icon">🗺️</div>
+            <div class="brand-name">
+                CensoApp
+                <span>Unicartagena</span>
+            </div>
+        </div>
+        <div class="panel-tagline">
+            <h1>Unete al equipo de sensadores.</h1>
+            <p>Crea tu cuenta en segundos y empieza a registrar informacion censal de manera rapida y segura.</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                    <strong>Crea tu cuenta</strong>
+                    Elige un nombre de usuario y una contrasena segura.
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                    <strong>Selecciona tu rol</strong>
+                    Admin o Sensador segun tu funcion en el proyecto.
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                    <strong>Empieza a censar</strong>
+                    Accede al sistema y registra hogares en tu zona.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-right">
+        <div class="form-card">
+            <h2>Crear cuenta</h2>
+            <p class="subtitle">Completa los datos para registrarte en el sistema.</p>
+
+            <form action="index.php" method="POST">
+                <input type="hidden" name="action" value="register">
+
+                <div class="form-group">
+                    <label for="nombre">Nombre de usuario</label>
+                    <input type="text" id="nombre" name="nombre"
+                    <div class="form-group">
+                        <label for="nombre">Nombre de usuario</label>
+                        <input type="text" id="nombre" name="nombre" placeholder="Ej: jose_admin" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clave">Contraseña</label>
+                        <input type="password" id="clave" name="clave" placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Rol en el sistema</label>
+                    <div class="rol-grid">
+                        <label class="rol-option">
+                            <input type="radio" name="rol" value="admin" required>
+                            <div class="rol-icon">🛡️</div>
+                            <div class="rol-title">Administrador</div>
