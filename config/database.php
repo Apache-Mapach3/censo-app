@@ -1,7 +1,7 @@
 <?php
 
 $host = 'localhost';
-$dbname = 'censo_db'; // <-- Verifica que este sea el nombre correcto
+$dbname = 'censo_app'; // <-- Verifica que este sea el nombre correcto
 $username = 'root';
 $password = ''; // En Laragon por defecto suele estar vacío
 
