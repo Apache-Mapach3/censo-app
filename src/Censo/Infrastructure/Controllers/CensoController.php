@@ -9,22 +9,26 @@ class CensoController
 {
     public function __construct(private RegistrarCensoUseCase $registrarCensoUseCase) {}
 
-    public function registrar(array $datos) 
-    {
-        try {
-            // Procesar checkboxes (Aseguramos que los nombres coincidan exactamente)
-            $datos['tieneAgua']           = isset($datos['tieneAgua']) ? 1 : 0;
-            $datos['tieneLuz']            = isset($datos['tieneLuz']) ? 1 : 0;
-            $datos['tieneAlcantarillado'] = isset($datos['tieneAlcantarillado']) ? 1 : 0;
-            $datos['tieneGas']            = isset($datos['tieneGas']) ? 1 : 0;
-            $datos['tieneOtrosServicios'] = isset($datos['tieneOtrosServicios']) ? 1 : 0;
+    public function actualizar(array $datos) {
+    try {
+        // Procesar checkboxes inactivos (igual que en registrar)
+        $datos['tieneAgua']           = isset($datos['tieneAgua']) ? 1 : 0;
+        $datos['tieneLuz']            = isset($datos['tieneLuz']) ? 1 : 0;
+        $datos['tieneAlcantarillado'] = isset($datos['tieneAlcantarillado']) ? 1 : 0;
+        $datos['tieneGas']            = isset($datos['tieneGas']) ? 1 : 0;
+        $datos['tieneOtrosServicios'] = isset($datos['tieneOtrosServicios']) ? 1 : 0;
 
-            // Ejecutar el caso de uso
-            $this->registrarCensoUseCase->execute($datos);
+        // Ejecutar caso de uso de actualización
+        $this->actualizarCensoUseCase->execute($datos);
 
-            // Redirigir al listado (Sin comentarios y con la función header correcta)
-            header('Location: index.php?action=listar_censos');
-            exit;
+        // Redirigir de vuelta al listado
+        header('Location: index.php?action=listar_censos');
+        exit;
+    } catch (\Throwable $e) {
+        // Manejo de errores
+        die("Error al actualizar: " . $e->getMessage());
+    
+
 
         } catch (\Throwable $e) { 
             echo "<div style='font-family: sans-serif; padding: 20px; background: #ffebee; border: 1px solid #f44336; border-radius: 5px; margin: 20px;'>";
