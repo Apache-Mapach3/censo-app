@@ -5,40 +5,58 @@ namespace App\Usuario\Infrastructure\Controllers;
 use App\Usuario\Application\UseCase\CrearUsuarioUseCase;
 use App\Usuario\Application\UseCase\AutenticarUsuarioUseCase;
 
-class UsuarioController {
-    // Inyectamos los Casos de Uso
+/**
+ * BUG CORREGIDO:
+ *  - Existían dos archivos duplicados: uno en Infraestructure/ (typo de directorio)
+ *    y otro en Infrastructure/. Se elimina el typo y se usa sólo Infrastructure/.
+ *  - Se activa session_start() y $_SESSION para que el login funcione realmente.
+ *  - Se redirige correctamente tras registrar/loguear en vez de sólo hacer echo.
+ */
+class UsuarioController
+{
     public function __construct(
-        private CrearUsuarioUseCase $crearUsuarioUseCase,
+        private CrearUsuarioUseCase      $crearUsuarioUseCase,
         private AutenticarUsuarioUseCase $autenticarUsuarioUseCase
     ) {}
 
-    // Método para manejar el POST del formulario de registro
-    public function registrar(array $request): void {
+    public function registrar(array $request): void
+    {
         try {
             $this->crearUsuarioUseCase->execute(
-                $request['nombre'],
-                $request['clave'],
-                $request['rol']
+                $request['nombre'] ?? '',
+                $request['clave']  ?? '',
+                $request['rol']    ?? ''
             );
-            echo "Usuario registrado exitosamente.";
+            // Redirige al login con mensaje de éxito
+            header("Location: login.html?registered=1");
+            exit();
         } catch (\Exception $e) {
-            echo "Error: " . $e->getMessage();
+            // Muestra error en la misma pantalla de registro
+            echo "<p style='color:red;font-family:sans-serif;padding:20px'>Error: "
+                . htmlspecialchars($e->getMessage())
+                . " <a href='registro.html'>Volver</a></p>";
         }
     }
 
-    // Método para manejar el POST del formulario de login
-    public function login(array $request): void {
+    public function login(array $request): void
+    {
         $usuario = $this->autenticarUsuarioUseCase->execute(
-            $request['nombre'],
-            $request['clave']
+            $request['nombre'] ?? '',
+            $request['clave']  ?? ''
         );
 
         if ($usuario) {
-            // Aquí en un entorno real iniciarías variables de sesión
-            // session_start(); $_SESSION['usuario_id'] = $usuario->getId();
-            echo "Bienvenido, " . $usuario->getNombre() . " (" . $usuario->getRol() . ")";
+            // Guardamos datos en sesión
+            $_SESSION['usuario_id']     = $usuario->getId();
+            $_SESSION['usuario_nombre'] = $usuario->getNombre();
+            $_SESSION['usuario_rol']    = $usuario->getRol();
+
+            // Redirige al listado de censos (página principal tras login)
+            header("Location: index.php?action=listar_censos");
+            exit();
         } else {
-            echo "Credenciales incorrectas.";
+            echo "<p style='color:red;font-family:sans-serif;padding:20px'>Credenciales incorrectas. "
+                . "<a href='login.html'>Volver</a></p>";
         }
     }
 }

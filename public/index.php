@@ -1,9 +1,13 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-// --- 1. IMPORTACIONES (Namespaces) ---
+session_start();
+
+// IMPORTACIONES
 use App\Usuario\Infrastructure\Persistence\MySQLUsuarioRepository;
 use App\Usuario\Application\UseCase\CrearUsuarioUseCase;
 use App\Usuario\Application\UseCase\AutenticarUsuarioUseCase;
@@ -19,16 +23,14 @@ use App\Censo\Infrastructure\Controllers\CensoController;
 use App\Censo\Infrastructure\Controllers\ListarCensosController;
 use App\Censo\Infrastructure\Controllers\GestionarCensoController;
 
-// --- 2. INICIALIZACIÓN DE COMPONENTES ---
+// INICIALIZACIÓN
 
-// Módulo Usuario
 $usuarioRepo       = new MySQLUsuarioRepository($pdo);
 $usuarioController = new UsuarioController(
     new CrearUsuarioUseCase($usuarioRepo),
     new AutenticarUsuarioUseCase($usuarioRepo)
 );
 
-// Módulo Censo
 $censoRepo         = new MySQLCensoRepository($pdo);
 $censoController   = new CensoController(new RegistrarCensoUseCase($censoRepo));
 $listarController  = new ListarCensosController(new ListarCensosUseCase($censoRepo));
@@ -38,24 +40,32 @@ $gestionController = new GestionarCensoController(
     new EliminarCensoUseCase($censoRepo)
 );
 
-// --- 3. ENRUTADOR (Lógica de navegación) ---
+// ENRUTADOR
 
-// Obtenemos la acción de POST o GET
+// BUG CORREGIDO: los formularios HTML envían 'register' y 'login',
+// no 'register_user' ni 'login_user'. Se unifican aquí.
 $action = $_POST['action'] ?? $_GET['action'] ?? null;
 
 switch ($action) {
-    // --- ACCIONES DE USUARIO ---
+
+    // USUARIO 
+    case 'register':         // viene de registro.html
     case 'register_user':
         $usuarioController->registrar($_POST);
         break;
 
+    case 'login':            // viene de login.html
     case 'login_user':
         $usuarioController->login($_POST);
         break;
 
-    // --- ACCIONES DE CENSO ---
+    // CENSO
     case 'register_censo':
         $censoController->registrar($_POST);
+        break;
+
+    case 'mostrar_registro': // botón "+ Nuevo Censo"
+        require_once __DIR__ . '/views/registro_censo.php';
         break;
 
     case 'listar_censos':
@@ -63,20 +73,22 @@ switch ($action) {
         break;
 
     case 'editar_censo':
-        $gestionController->cargarFormularioEdicion((int)$_GET['id']);
+        $gestionController->cargarFormularioEdicion((int)($_GET['id'] ?? 0));
         break;
 
     case 'actualizar_censo':
         $gestionController->actualizar($_POST);
         break;
 
+    // BUG CORREGIDO: el formulario de eliminar envía el id por POST,
+    // así que se lee de $_POST, no de $_GET.
     case 'eliminar_censo':
-        $gestionController->eliminar((int)$_GET['id']);
+        $id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
+        $gestionController->eliminar($id);
         break;
 
-    // --- PÁGINA POR DEFECTO ---
+    // DEFAULT
     default:
-        // Si no hay acción, mandamos al login o a una página de bienvenida
         header("Location: login.html");
         exit();
 }
