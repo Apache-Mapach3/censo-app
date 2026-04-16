@@ -8,12 +8,19 @@ require_once __DIR__ . '/../config/database.php';
 
 session_start();
 
-// IMPORTACIONES
+// USUARIO ──────────────────────────────────────────────────────────────────
 use App\Usuario\Infrastructure\Persistence\MySQLUsuarioRepository;
+use App\Usuario\Infrastructure\Persistence\MySQLTokenRecuperacionRepository;
 use App\Usuario\Application\UseCase\CrearUsuarioUseCase;
 use App\Usuario\Application\UseCase\AutenticarUsuarioUseCase;
+use App\Usuario\Application\UseCase\ListarUsuariosUseCase;
+use App\Usuario\Application\UseCase\ActualizarUsuarioUseCase;
+use App\Usuario\Application\UseCase\EliminarUsuarioUseCase;
+use App\Usuario\Application\UseCase\SolicitarRecuperacionUseCase;
+use App\Usuario\Application\UseCase\RestablecerClaveUseCase;
 use App\Usuario\Infrastructure\Controllers\UsuarioController;
 
+// CENSO ─────────────────────────────────────────────────────────────────────
 use App\Censo\Infrastructure\Persistence\MySQLCensoRepository;
 use App\Censo\Application\UseCase\RegistrarCensoUseCase;
 use App\Censo\Application\UseCase\ListarCensosUseCase;
@@ -24,12 +31,19 @@ use App\Censo\Infrastructure\Controllers\CensoController;
 use App\Censo\Infrastructure\Controllers\ListarCensosController;
 use App\Censo\Infrastructure\Controllers\GestionarCensoController;
 
-// INICIALIZACIÓN
+// INICIALIZACIÓN ────────────────────────────────────────────────────────────
 
-$usuarioRepo       = new MySQLUsuarioRepository($pdo);
+$usuarioRepo = new MySQLUsuarioRepository($pdo);
+$tokenRepo   = new MySQLTokenRecuperacionRepository($pdo);
+
 $usuarioController = new UsuarioController(
     new CrearUsuarioUseCase($usuarioRepo),
-    new AutenticarUsuarioUseCase($usuarioRepo)
+    new AutenticarUsuarioUseCase($usuarioRepo),
+    new ListarUsuariosUseCase($usuarioRepo),
+    new ActualizarUsuarioUseCase($usuarioRepo),
+    new EliminarUsuarioUseCase($usuarioRepo),
+    new SolicitarRecuperacionUseCase($usuarioRepo, $tokenRepo),
+    new RestablecerClaveUseCase($usuarioRepo, $tokenRepo)
 );
 
 $censoRepo         = new MySQLCensoRepository($pdo);
@@ -41,23 +55,57 @@ $gestionController = new GestionarCensoController(
     new EliminarCensoUseCase($censoRepo)
 );
 
-// ENRUTADOR
+// ENRUTADOR ─────────────────────────────────────────────────────────────────
 
-// BUG CORREGIDO: los formularios HTML envían 'register' y 'login',
-// no 'register_user' ni 'login_user'. Se unifican aquí.
 $action = $_POST['action'] ?? $_GET['action'] ?? null;
 
 switch ($action) {
 
-    // USUARIO 
-    case 'register':         // viene de registro.html
+    // USUARIO — auth
+    case 'register':
     case 'register_user':
         $usuarioController->registrar($_POST);
         break;
 
-    case 'login':            // viene de login.html
+    case 'login':
     case 'login_user':
         $usuarioController->login($_POST);
+        break;
+
+    // USUARIO — CRUDL
+    case 'listar_usuarios':
+        $usuarioController->listar();
+        break;
+
+    case 'editar_usuario':
+        $usuarioController->cargarFormularioEdicion((int)($_GET['id'] ?? 0));
+        break;
+
+    case 'actualizar_usuario':
+        $usuarioController->actualizar($_POST);
+        break;
+
+    case 'eliminar_usuario':
+        $id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
+        $usuarioController->eliminar($id);
+        break;
+
+    // USUARIO — recuperar contraseña
+    case 'recuperar_clave':
+        $usuarioController->mostrarFormularioRecuperacion();
+        break;
+
+    case 'solicitar_recuperacion':
+        $usuarioController->solicitarRecuperacion($_POST);
+        break;
+
+    case 'restablecer_clave':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        $usuarioController->mostrarFormularioRestablecer($token);
+        break;
+
+    case 'confirmar_restablecer':
+        $usuarioController->restablecerClave($_POST);
         break;
 
     // CENSO
@@ -65,7 +113,7 @@ switch ($action) {
         $censoController->registrar($_POST);
         break;
 
-    case 'mostrar_registro': // botón "+ Nuevo Censo"
+    case 'mostrar_registro':
         require_once __DIR__ . '/views/registro_censo.php';
         break;
 
@@ -81,8 +129,6 @@ switch ($action) {
         $gestionController->actualizar($_POST);
         break;
 
-    // BUG CORREGIDO: el formulario de eliminar envía el id por POST,
-    // así que se lee de $_POST, no de $_GET.
     case 'eliminar_censo':
         $id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
         $gestionController->eliminar($id);
