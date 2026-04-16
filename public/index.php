@@ -3,12 +3,18 @@ ob_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+// CARGA DE DEPENDENCIAS Y VARIABLES DE ENTORNO
 require_once __DIR__ . '/../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
 require_once __DIR__ . '/../config/database.php';
 
 session_start();
 
-// USUARIO ──────────────────────────────────────────────────────────────────
+// MPORTACIÓN DE CLASES (USUARIO)
 use App\Usuario\Infrastructure\Persistence\MySQLUsuarioRepository;
 use App\Usuario\Infrastructure\Persistence\MySQLTokenRecuperacionRepository;
 use App\Usuario\Application\UseCase\CrearUsuarioUseCase;
@@ -19,8 +25,9 @@ use App\Usuario\Application\UseCase\EliminarUsuarioUseCase;
 use App\Usuario\Application\UseCase\SolicitarRecuperacionUseCase;
 use App\Usuario\Application\UseCase\RestablecerClaveUseCase;
 use App\Usuario\Infrastructure\Controllers\UsuarioController;
+use App\Usuario\Infrastructure\Mail\PHPMailerEmailSender;
 
-// CENSO ─────────────────────────────────────────────────────────────────────
+// IMPORTACIÓN DE CLASES (CENSO)
 use App\Censo\Infrastructure\Persistence\MySQLCensoRepository;
 use App\Censo\Application\UseCase\RegistrarCensoUseCase;
 use App\Censo\Application\UseCase\ListarCensosUseCase;
@@ -31,21 +38,25 @@ use App\Censo\Infrastructure\Controllers\CensoController;
 use App\Censo\Infrastructure\Controllers\ListarCensosController;
 use App\Censo\Infrastructure\Controllers\GestionarCensoController;
 
-// INICIALIZACIÓN ────────────────────────────────────────────────────────────
+// INICIALIZACIÓN DE OBJETOS
 
+// Repositorios y Servicios (Usuario)
 $usuarioRepo = new MySQLUsuarioRepository($pdo);
 $tokenRepo   = new MySQLTokenRecuperacionRepository($pdo);
+$emailSender = new PHPMailerEmailSender(); 
 
+// Controlador de Usuario (Configurado correctamente con sus 3 parámetros)
 $usuarioController = new UsuarioController(
     new CrearUsuarioUseCase($usuarioRepo),
     new AutenticarUsuarioUseCase($usuarioRepo),
     new ListarUsuariosUseCase($usuarioRepo),
     new ActualizarUsuarioUseCase($usuarioRepo),
     new EliminarUsuarioUseCase($usuarioRepo),
-    new SolicitarRecuperacionUseCase($usuarioRepo, $tokenRepo),
+    new SolicitarRecuperacionUseCase($usuarioRepo, $tokenRepo, $emailSender), 
     new RestablecerClaveUseCase($usuarioRepo, $tokenRepo)
 );
 
+// Repositorios y Controladores (Censo)
 $censoRepo         = new MySQLCensoRepository($pdo);
 $censoController   = new CensoController(new RegistrarCensoUseCase($censoRepo));
 $listarController  = new ListarCensosController(new ListarCensosUseCase($censoRepo));
@@ -55,8 +66,7 @@ $gestionController = new GestionarCensoController(
     new EliminarCensoUseCase($censoRepo)
 );
 
-// ENRUTADOR ─────────────────────────────────────────────────────────────────
-
+// ENRUTADOR PRINCIPAL (SWITCH)
 $action = $_POST['action'] ?? $_GET['action'] ?? null;
 
 switch ($action) {

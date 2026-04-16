@@ -72,12 +72,21 @@
 
 <div class="topbar">
     <div class="brand">🗺️ CensoApp</div>
-    <div class="topbar-right">
+    <div class="topbar-right" style="display: flex; gap: 20px; align-items: center;">
+        
         <?php if (!empty($_SESSION['usuario_nombre'])): ?>
             <span>👤 <?= htmlspecialchars($_SESSION['usuario_nombre']) ?>
                 (<?= htmlspecialchars($_SESSION['usuario_rol'] ?? '') ?>)</span>
         <?php endif; ?>
-        <a href="login.html">Cerrar sesión</a>
+
+        <?php if (($_SESSION['usuario_rol'] ?? '') === 'admin'): ?>
+            <a href="index.php?action=listar_usuarios" style="color: #e8a020; text-decoration: none; font-weight: 600;">
+                👥 Gestionar Usuarios
+            </a>
+        <?php endif; ?>
+
+        <a href="login.html" style="color: white; text-decoration: none;">Cerrar sesión</a>
+        
     </div>
 </div>
 
@@ -124,12 +133,10 @@
                             <td>
                                 <div class="actions-cell">
                                     <a href="index.php?action=editar_censo&id=<?= $censo->getId() ?>"
-                                       class="btn-edit">Editar</a>
+                                    class="btn-edit">Editar</a>
 
-                                    <!-- BUG CORREGIDO: action apunta a index.php (no a index.php?action=...)
-                                         y el action va por campo hidden en POST -->
                                     <form action="index.php" method="POST" style="display:inline"
-                                          onsubmit="return confirm('¿Eliminar este censo de forma permanente?')">
+                                        onsubmit="return confirm('¿Eliminar este censo de forma permanente?')">
                                         <input type="hidden" name="action" value="eliminar_censo">
                                         <input type="hidden" name="id" value="<?= $censo->getId() ?>">
                                         <button type="submit" class="btn-delete">Eliminar</button>

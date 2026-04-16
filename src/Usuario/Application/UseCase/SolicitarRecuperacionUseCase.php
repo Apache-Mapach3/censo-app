@@ -1,15 +1,13 @@
 <?php
-
 namespace App\Usuario\Application\UseCase;
-
 use App\Usuario\Domain\Repository\UsuarioRepository;
 use App\Usuario\Domain\Repository\TokenRecuperacionRepository;
-
+use App\Usuario\Domain\Service\EmailSenderInterface; 
 class SolicitarRecuperacionUseCase {
-
     public function __construct(
         private UsuarioRepository           $usuarioRepo,
-        private TokenRecuperacionRepository $tokenRepo
+        private TokenRecuperacionRepository $tokenRepo,
+        private EmailSenderInterface        $emailSender 
     ) {}
 
     public function execute(string $correo, string $baseUrl): void {
@@ -26,17 +24,10 @@ class SolicitarRecuperacionUseCase {
 
         $this->tokenRepo->guardar($usuario->getId(), $token, $expira);
 
-        $enlace  = $baseUrl . '/index.php?action=restablecer_clave&token=' . $token;
-        $asunto  = 'Recuperación de contraseña — CensoApp';
-        $mensaje = "Hola {$usuario->getNombre()},\n\n"
-            . "Recibimos una solicitud para restablecer tu contraseña.\n\n"
-            . "Haz clic en el siguiente enlace (válido por 1 hora):\n"
-            . $enlace . "\n\n"
-            . "Si no solicitaste este cambio, ignora este mensaje.\n\n"
-            . "CensoApp — Unicartagena";
+        // Construimos el enlace
+        $enlace = $baseUrl . '/index.php?action=restablecer_clave&token=' . $token;
 
-        $cabeceras = "From: no-reply@censoapp.local\r\nContent-Type: text/plain; charset=UTF-8";
-
-        mail($usuario->getCorreo(), $asunto, $mensaje, $cabeceras);
+        // usa el servicio externo para enviar el correo
+        $this->emailSender->enviarCorreoRecuperacion($usuario->getCorreo(), $enlace);
     }
 }

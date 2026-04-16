@@ -11,7 +11,6 @@
         :root {
             --navy:   #0f1f3d;
             --teal:   #0d7377;
-            --teal2:  #14a085;
             --gold:   #e8a020;
             --light:  #f4f6f9;
             --muted:  #8896a8;
@@ -114,11 +113,7 @@
             gap: 16px;
         }
 
-        .step {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-        }
+        .step { display: flex; align-items: flex-start; gap: 14px; }
 
         .step-num {
             width: 28px; height: 28px;
@@ -126,89 +121,62 @@
             background: rgba(255,255,255,0.1);
             border: 1.5px solid rgba(255,255,255,0.2);
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 12px; font-weight: 700;
             color: var(--gold);
-            flex-shrink: 0;
-            margin-top: 2px;
+            flex-shrink: 0; margin-top: 2px;
         }
 
-        .step-text {
-            font-size: 13px;
-            color: rgba(255,255,255,0.6);
-            line-height: 1.5;
-        }
+        .step-text { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
 
         .step-text strong {
             display: block;
             color: rgba(255,255,255,0.9);
-            font-weight: 600;
-            margin-bottom: 2px;
+            font-weight: 600; margin-bottom: 2px;
         }
 
-        /* Panel derecho */
         .panel-right {
             background: var(--light);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 60px 40px;
+            overflow-y: auto;
         }
 
-        .form-card {
-            width: 100%;
-            max-width: 400px;
-        }
+        .form-card { width: 100%; max-width: 400px; }
 
         .form-card h2 {
             font-family: 'DM Serif Display', serif;
-            font-size: 30px;
-            color: var(--navy);
-            margin-bottom: 6px;
+            font-size: 30px; color: var(--navy); margin-bottom: 6px;
         }
 
         .form-card .subtitle {
-            font-size: 14px;
-            color: var(--muted);
-            margin-bottom: 36px;
+            font-size: 14px; color: var(--muted); margin-bottom: 36px;
         }
 
         .form-group { margin-bottom: 20px; }
 
         label {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--navy);
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
+            font-size: 13px; font-weight: 600;
+            color: var(--navy); letter-spacing: 0.5px; margin-bottom: 8px;
         }
 
         input[type="text"],
         input[type="password"],
-        select {
+        input[type="email"] {
             width: 100%;
             padding: 13px 16px;
             border: 1.5px solid #dce2ea;
             border-radius: var(--radius);
             font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            color: var(--navy);
+            font-size: 14px; color: var(--navy);
             background: var(--white);
             transition: border-color 0.2s, box-shadow 0.2s;
             outline: none;
-            appearance: none;
         }
 
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238896a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            padding-right: 40px;
-            cursor: pointer;
-        }
-
-        input:focus, select:focus {
+        input:focus {
             border-color: var(--green);
             box-shadow: 0 0 0 3px rgba(13,115,85,0.12);
         }
@@ -222,16 +190,13 @@
         .rol-option {
             border: 1.5px solid #dce2ea;
             border-radius: var(--radius);
-            padding: 14px;
-            cursor: pointer;
+            padding: 14px; cursor: pointer;
             transition: border-color 0.2s, background 0.2s;
             position: relative;
         }
 
         .rol-option input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-            width: 0; height: 0;
+            position: absolute; opacity: 0; width: 0; height: 0;
         }
 
         .rol-option:has(input:checked) {
@@ -240,49 +205,30 @@
         }
 
         .rol-icon { font-size: 22px; margin-bottom: 6px; }
-
-        .rol-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--navy);
-        }
-
-        .rol-desc {
-            font-size: 11px;
-            color: var(--muted);
-            margin-top: 2px;
-        }
+        .rol-title { font-size: 13px; font-weight: 600; color: var(--navy); }
+        .rol-desc  { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
         .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: var(--green);
-            color: var(--white);
-            border: none;
-            border-radius: var(--radius);
+            width: 100%; padding: 14px;
+            background: var(--green); color: var(--white);
+            border: none; border-radius: var(--radius);
             font-family: 'DM Sans', sans-serif;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 8px;
+            font-size: 15px; font-weight: 600;
+            cursor: pointer; margin-top: 8px;
             transition: background 0.2s, transform 0.1s;
             letter-spacing: 0.3px;
         }
 
-        .btn-submit:hover { background: #0a5c43; }
+        .btn-submit:hover  { background: #0a5c43; }
         .btn-submit:active { transform: scale(0.99); }
 
         .form-footer {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 13px;
-            color: var(--muted);
+            text-align: center; margin-top: 24px;
+            font-size: 13px; color: var(--muted);
         }
 
         .form-footer a {
-            color: var(--teal);
-            font-weight: 600;
-            text-decoration: none;
+            color: var(--teal); font-weight: 600; text-decoration: none;
         }
 
         .form-footer a:hover { text-decoration: underline; }
@@ -295,91 +241,117 @@
 </head>
 <body>
 
-    <div class="panel-left">
-        <div class="brand">
-            <div class="brand-icon">🗺️</div>
-            <div class="brand-name">
-                CensoApp
-                <span>Unicartagena</span>
+<div class="panel-left">
+    <div class="brand">
+        <div class="brand-icon">🗺️</div>
+        <div class="brand-name">
+            CensoApp
+            <span>Unicartagena</span>
+        </div>
+    </div>
+    <div class="panel-tagline">
+        <h1>Unete al equipo de sensadores.</h1>
+        <p>Crea tu cuenta en segundos y empieza a registrar informacion censal de manera rapida y segura.</p>
+    </div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">
+                <strong>Crea tu cuenta</strong>
+                Elige un nombre de usuario y una contrasena segura.
             </div>
         </div>
-        <div class="panel-tagline">
-            <h1>Unete al equipo de sensadores.</h1>
-            <p>Crea tu cuenta en segundos y empieza a registrar informacion censal de manera rapida y segura.</p>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text">
+                <strong>Selecciona tu rol</strong>
+                Admin o Censador segun tu funcion en el proyecto.
+            </div>
         </div>
-        <div class="steps">
-            <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-text">
-                    <strong>Crea tu cuenta</strong>
-                    Elige un nombre de usuario y una contrasena segura.
-                </div>
-            </div>
-            <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-text">
-                    <strong>Selecciona tu rol</strong>
-                    Admin o Sensador segun tu funcion en el proyecto.
-                </div>
-            </div>
-            <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-text">
-                    <strong>Empieza a censar</strong>
-                    Accede al sistema y registra hogares en tu zona.
-                </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">
+                <strong>Empieza a censar</strong>
+                Accede al sistema y registra hogares en tu zona.
             </div>
         </div>
     </div>
+</div>
 
-    <div class="panel-right">
-        <div class="form-card">
-            <h2>Crear cuenta</h2>
-            <p class="subtitle">Completa los datos para registrarte en el sistema.</p>
+<div class="panel-right">
+    <div class="form-card">
+        <h2>Crear cuenta</h2>
+        <p class="subtitle">Completa los datos para registrarte en el sistema.</p>
 
-            <form action="index.php" method="POST">
-                <input type="hidden" name="action" value="register_user">
+        <form id="registroForm" action="index.php" method="POST">
+            <input type="hidden" name="action" value="register_user">
 
-                <div class="form-group">
-                    <label for="nombre">Nombre de Usuario</label>
-                    <input type="text" id="nombre" name="nombre" placeholder="Ej: jose_admin" required>
-                </div>
-
-                <div class="form-group">
-            <label for="correo">Correo electrónico</label>
-            <input type="email" id="correo" name="correo" placeholder="tu@correo.com" required>
-        </div>
-                <div class="form-group">
-                    <label for="clave">Contraseña</label>
-                    <input type="password" id="clave" name="clave" placeholder="Mínimo 6 caracteres" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Rol en el sistema</label>
-                    <div class="rol-grid">
-                        <label class="rol-option">
-                            <input type="radio" name="rol" value="admin" required>
-                            <div class="rol-icon">🛡️</div>
-                            <div class="rol-title">Administrador</div>
-                            <div class="rol-desc">Gestion completa</div>
-                        </label>
-                        <label class="rol-option">
-                            <input type="radio" name="rol" value="usuario">
-                            <div class="rol-icon">📋</div>
-                            <div class="rol-title">Sensador</div>
-                            <div class="rol-desc">Registro de censos</div>
-                        </label>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-submit">Registrar Usuario</button>
-            </form>
-
-            <div class="form-footer">
-                Ya tienes cuenta? <a href="login.html">Inicia sesion aqui</a>
+            <div class="form-group">
+                <label for="correo">Correo electrónico</label>
+                <input type="email" id="correo" name="correo" placeholder="tu@correo.com" required>
             </div>
+
+            <div class="form-group">
+                <label for="confirmar_correo">Confirmar correo</label>
+                <input type="email" id="confirmar_correo" placeholder="Repite tu correo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="nombre">Nombre de usuario</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Ej: jose_admin" required>
+            </div>
+
+            <div class="form-group">
+                <label for="clave">Contraseña</label>
+                <input type="password" id="clave" name="clave" placeholder="Mínimo 6 caracteres" required>
+            </div>
+
+            <div class="form-group">
+                <label>Rol en el sistema</label>
+                <div class="rol-grid">
+                    <label class="rol-option">
+                        <input type="radio" name="rol" value="admin" required>
+                        <div class="rol-icon">👑</div>
+                        <div class="rol-title">Administrador</div>
+                        <div class="rol-desc">Gestión completa</div>
+                    </label>
+                    <label class="rol-option">
+                        <input type="radio" name="rol" value="censador">
+                        <div class="rol-icon">📝</div>
+                        <div class="rol-title">Censador</div>
+                        <div class="rol-desc">Registro de censos</div>
+                    </label>
+                </div>
+            </div>
+
+            <button type="button" class="btn-submit" onclick="validarYEnviar()">Registrar Usuario</button>
+        </form>
+
+        <div class="form-footer">
+            Ya tienes cuenta? <a href="login.html">Inicia sesion aqui</a>
         </div>
     </div>
+</div>
+
+<script>
+    function validarYEnviar() {
+        const correo    = document.getElementById('correo').value;
+        const confirmar = document.getElementById('confirmar_correo').value;
+
+        if (correo !== confirmar) {
+            alert('Los correos no coinciden.');
+            return;
+        }
+
+        const rol = document.querySelector('input[name="rol"]:checked');
+        if (!rol) {
+            alert('Debes seleccionar un rol.');
+            return;
+        }
+
+        document.getElementById('registroForm').submit();
+    }
+</script>
 
 </body>
 </html>
