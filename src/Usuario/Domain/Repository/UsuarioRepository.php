@@ -14,4 +14,5 @@ interface UsuarioRepository {
     public function findByNombre(string $nombre): ?Usuario;
     public function findByCorreo(string $correo): ?Usuario;
     public function existsByNombre(string $nombre): bool;
-}
+    public function saveConOrg(Usuario $usuario, int $orgId): void;
+    }

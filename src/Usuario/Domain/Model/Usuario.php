@@ -4,14 +4,19 @@ namespace App\Usuario\Domain\Model;
 
 class Usuario {
     public function __construct(
-        private ?int   $id,
-        private string $nombre,
-        private string $clave,
-        private string $rol,
-        private string $correo = ''
+    private ?int   $id,
+    private string $nombre,
+    private string $clave,
+    private string $rol,
+    private string $correo = '',
+    private ?int   $organizacionId = null
     ) {
         $this->validar();
     }
+    public function getOrganizacionId(): ?int 
+{ 
+    return $this->organizacionId; 
+}
 
     private function validar(): void {
         if (empty($this->nombre)) throw new \InvalidArgumentException("Nombre requerido");
