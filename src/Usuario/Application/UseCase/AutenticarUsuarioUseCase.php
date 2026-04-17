@@ -9,18 +9,23 @@ class AutenticarUsuarioUseCase {
 
     public function __construct(private UsuarioRepository $repository) {}
 
-    public function execute(string $nombre, string $clavePlana): ?Usuario {
+    public function execute(string $correo, string $clavePlana): ?Usuario {
 
-        if (trim($nombre) === '' || trim($clavePlana) === '') {
-            return null;
+        if (trim($correo) === '' || trim($clavePlana) === '') {
+            die("DEBUG: El correo o la clave llegaron vacíos desde el formulario.");
         }
 
-        $usuario = $this->repository->findByNombre($nombre);
+        $usuario = $this->repository->findByCorreo($correo);
 
-        if (!$usuario || !password_verify($clavePlana, $usuario->getClave())) {
-            return null;
+        if (!$usuario) {
+            die("DEBUG: Busqué en la base de datos pero NO encontré este correo: " . $correo);
+        }
+
+        if (!password_verify($clavePlana, $usuario->getClave())) {
+            die("DEBUG: El correo existe, pero la contraseña NO coincide.");
         }
 
         return $usuario;
     }
-}
+
+} 

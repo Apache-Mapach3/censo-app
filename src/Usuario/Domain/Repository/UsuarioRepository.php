@@ -10,7 +10,7 @@ interface UsuarioRepository
     public function update(Usuario $usuario): void;
     public function findById(int $id): ?Usuario;
     /** @return Usuario[] */
-    public function findAll(): array;
+    public function findAll(?int $orgId = null): array;
     public function delete(int $id): void;
     public function findByNombre(string $nombre): ?Usuario;
 

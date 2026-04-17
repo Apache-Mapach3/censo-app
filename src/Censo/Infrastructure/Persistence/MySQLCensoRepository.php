@@ -10,6 +10,7 @@ class MySQLCensoRepository implements CensoRepository {
 
     public function __construct(private PDO $connection) {}
 
+<<<<<<< refactor
     public function save(Censo $censo): void {
         $sql = "INSERT INTO censos (
             nombre, fecha, pais, departamento, ciudad, casa,
@@ -27,6 +28,28 @@ class MySQLCensoRepository implements CensoRepository {
 
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($this->censoToArray($censo));
+=======
+    public function save(Censo $censo, int $orgId): void {
+        $sql = "INSERT INTO censos (
+            jefe_familia, documento, direccion, barrio, cantidad_personas, estrato, observaciones, organizacion_id
+        ) VALUES (
+            :jefe_familia, :documento, :direccion, :barrio, :cantidad_personas, :estrato, :observaciones, :organizacion_id
+        )";
+
+        $stmt = $this->connection->prepare($sql);
+        
+        // Ejecutamos pasando los datos directamente desde el modelo
+        $stmt->execute([
+            'jefe_familia'      => $censo->getJefeFamilia(),
+            'documento'         => $censo->getDocumento(),
+            'direccion'         => $censo->getDireccion(),
+            'barrio'            => $censo->getBarrio(),
+            'cantidad_personas' => $censo->getCantidadPersonas(),
+            'estrato'           => $censo->getEstrato(),
+            'observaciones'     => $censo->getObservaciones(),
+            'organizacion_id'   => $orgId
+        ]);
+>>>>>>> local
     }
 
     public function findById(int $id): ?Censo {
@@ -34,11 +57,10 @@ class MySQLCensoRepository implements CensoRepository {
         $stmt->execute(['id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$row) return null;
-
-        return $this->rowToCenso($row);
+        return $row ? $this->rowToCenso($row) : null;
     }
 
+<<<<<<< refactor
     /** @return Censo[] */
     public function findAll(): array {
         $stmt = $this->connection->query("SELECT * FROM censos ORDER BY id DESC");
@@ -48,38 +70,45 @@ class MySQLCensoRepository implements CensoRepository {
             $censos[] = $this->rowToCenso($row);
         }
 
+=======
+    public function findAll(?int $orgId = null): array {
+        if ($orgId !== null) {
+            $stmt = $this->connection->prepare("SELECT * FROM censos WHERE organizacion_id = :org ORDER BY id DESC");
+            $stmt->execute(['org' => $orgId]);
+        } else {
+            $stmt = $this->connection->query("SELECT * FROM censos ORDER BY id DESC");
+        }
+
+        $censos = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $censos[] = $this->rowToCenso($row);
+        }
+>>>>>>> local
         return $censos;
     }
 
     public function update(Censo $censo): void {
         $sql = "UPDATE censos SET
-            nombre              = :nombre,
-            fecha               = :fecha,
-            pais                = :pais,
-            departamento        = :departamento,
-            ciudad              = :ciudad,
-            casa                = :casa,
-            numHombres          = :numHombres,
-            numMujeres          = :numMujeres,
-            numAncianosHombres  = :numAncianosHombres,
-            numAncianasMujeres  = :numAncianasMujeres,
-            numNinos            = :numNinos,
-            numNinas            = :numNinas,
-            numHabitaciones     = :numHabitaciones,
-            numCamas            = :numCamas,
-            tieneAgua           = :tieneAgua,
-            tieneLuz            = :tieneLuz,
-            tieneAlcantarillado = :tieneAlcantarillado,
-            tieneGas            = :tieneGas,
-            tieneOtrosServicios = :tieneOtrosServicios,
-            nombreSensador      = :nombreSensador
+            jefe_familia      = :jefe_familia,
+            documento         = :documento,
+            direccion         = :direccion,
+            barrio            = :barrio,
+            cantidad_personas = :cantidad_personas,
+            estrato           = :estrato,
+            observaciones     = :observaciones
         WHERE id = :id";
 
-        $datos = $this->censoToArray($censo);
-        $datos['id'] = $censo->getId();
-
         $stmt = $this->connection->prepare($sql);
-        $stmt->execute($datos);
+        $stmt->execute([
+            'id'                => $censo->getId(),
+            'jefe_familia'      => $censo->getJefeFamilia(),
+            'documento'         => $censo->getDocumento(),
+            'direccion'         => $censo->getDireccion(),
+            'barrio'            => $censo->getBarrio(),
+            'cantidad_personas' => $censo->getCantidadPersonas(),
+            'estrato'           => $censo->getEstrato(),
+            'observaciones'     => $censo->getObservaciones()
+        ]);
     }
 
     public function delete(int $id): void {
@@ -87,56 +116,17 @@ class MySQLCensoRepository implements CensoRepository {
         $stmt->execute(['id' => $id]);
     }
 
-    //Helpers privados 
-
-    private function censoToArray(Censo $censo): array {
-        return [
-            'nombre'              => $censo->getNombre(),
-            'fecha'               => $censo->getFecha()->format('Y-m-d'),
-            'pais'                => $censo->getPais(),
-            'departamento'        => $censo->getDepartamento(),
-            'ciudad'              => $censo->getCiudad(),
-            'casa'                => $censo->getCasa(),
-            'numHombres'          => $censo->getNumHombres(),
-            'numMujeres'          => $censo->getNumMujeres(),
-            'numAncianosHombres'  => $censo->getNumAncianosHombres(),
-            'numAncianasMujeres'  => $censo->getNumAncianasMujeres(),
-            'numNinos'            => $censo->getNumNinos(),
-            'numNinas'            => $censo->getNumNinas(),
-            'numHabitaciones'     => $censo->getNumHabitaciones(),
-            'numCamas'            => $censo->getNumCamas(),
-            'tieneAgua'           => (int)$censo->getTieneAgua(),
-            'tieneLuz'            => (int)$censo->getTieneLuz(),
-            'tieneAlcantarillado' => (int)$censo->getTieneAlcantarillado(),
-            'tieneGas'            => (int)$censo->getTieneGas(),
-            'tieneOtrosServicios' => (int)$censo->getTieneOtrosServicios(),
-            'nombreSensador'      => $censo->getNombreSensador(),
-        ];
-    }
-
     private function rowToCenso(array $row): Censo {
         return new Censo(
             (int)$row['id'],
-            $row['nombre'],
-            new \DateTime($row['fecha']),
-            $row['pais'],
-            $row['departamento'],
-            $row['ciudad'],
-            $row['casa'],
-            (int)$row['numHombres'],
-            (int)$row['numMujeres'],
-            (int)$row['numAncianosHombres'],
-            (int)$row['numAncianasMujeres'],
-            (int)$row['numNinos'],
-            (int)$row['numNinas'],
-            (int)$row['numHabitaciones'],
-            (int)$row['numCamas'],
-            (bool)$row['tieneAgua'],
-            (bool)$row['tieneLuz'],
-            (bool)$row['tieneAlcantarillado'],
-            (bool)$row['tieneGas'],
-            (bool)$row['tieneOtrosServicios'],
-            $row['nombreSensador']
+            $row['jefe_familia'],
+            $row['documento'],
+            $row['direccion'],
+            $row['barrio'],
+            (int)$row['cantidad_personas'],
+            (int)$row['estrato'],
+            $row['observaciones'],
+            (int)$row['organizacion_id']
         );
     }
 }
