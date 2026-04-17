@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// CARGA DE DEPENDENCIAS Y VARIABLES DE ENTORNO
+$orgId = (int)($_SESSION['organizacion_id'] ?? 0);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
@@ -84,7 +84,7 @@ switch ($action) {
 
     // USUARIO — CRUDL
     case 'listar_usuarios':
-        $usuarioController->listar();
+        $usuarioController->listar($orgId);
         break;
 
     case 'editar_usuario':
@@ -120,7 +120,7 @@ switch ($action) {
 
     // CENSO
     case 'register_censo':
-        $censoController->registrar($_POST);
+        $censoController->registrar($_POST, $orgId);
         break;
 
     case 'mostrar_registro':
@@ -128,7 +128,7 @@ switch ($action) {
         break;
 
     case 'listar_censos':
-        $listarController->listar();
+        $listarController->listar($orgId);
         break;
 
     case 'editar_censo':
