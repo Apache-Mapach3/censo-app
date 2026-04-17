@@ -49,14 +49,11 @@ class Censo {
         }
     }
 
-   
     public function getId(): ?int { return $this->id; }
     public function getNombre(): string { return $this->nombre; }
     public function getFecha(): \DateTime { return $this->fecha; }
     public function getPais(): string { return $this->pais; }
     public function getNombreSensador(): string { return $this->nombreSensador; }
-
-
     public function getDepartamento(): string { return $this->departamento; }
     public function getCiudad(): string { return $this->ciudad; }
     public function getCasa(): string { return $this->casa; }
