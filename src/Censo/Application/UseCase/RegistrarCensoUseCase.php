@@ -11,51 +11,70 @@ class RegistrarCensoUseCase {
 
     public function execute(array $datos): void {
 
-        // Solo valida los campos de texto obligatorios (que no son checkboxes)
-        $camposEstrictos = [
-            'nombre', 'fecha', 'pais', 'departamento', 'ciudad', 'casa', 'nombreSensador'
-        ];
 
-        foreach ($camposEstrictos as $campo) {
-            // Usamos empty() para que tampoco pasen campos en blanco
-            if (empty($datos[$campo])) {
-                throw new \InvalidArgumentException("Campo requerido faltante: $campo");
-            }
-        }
+        $camposEstrictos = [
+    'jefe_familia', 
+    'documento', 
+    'barrio', 
+    'casa', 
+    'cantidad_personas', 
+    'organizacion_id'
+];
+
+foreach ($camposEstrictos as $campo) {
+    if (!isset($datos[$campo]) || $datos[$campo] === null) {
+        $datos[$campo] = '';
+    }
+
+}
 
         try {
             $fecha = new \DateTime($datos['fecha']);
         } catch (\Exception $e) {
-            throw new \InvalidArgumentException("Fecha invalida");
+            throw new \InvalidArgumentException("Fecha inválida");
         }
 
-        // Se crea el Censo usando '??' para asignar valores por defecto (0 o false)
-        // a los campos que el usuario deje vacíos o desmarcados.
-        $censo = new Censo(
-            null,
-            $datos['nombre'],
-            $fecha,
-            $datos['pais'],
-            $datos['departamento'],
-            $datos['ciudad'],
-            $datos['casa'],
-            (int)($datos['numHombres'] ?? 0),
-            (int)($datos['numMujeres'] ?? 0),
-            (int)($datos['numAncianosHombres'] ?? 0),
-            (int)($datos['numAncianasMujeres'] ?? 0),
-            (int)($datos['numNinos'] ?? 0),
-            (int)($datos['numNinas'] ?? 0),
-            (int)($datos['numHabitaciones'] ?? 1), // Mínimo 1 habitación
-            (int)($datos['numCamas'] ?? 0),
-            isset($datos['tieneAgua']) ? (bool)$datos['tieneAgua'] : false,
-            isset($datos['tieneLuz']) ? (bool)$datos['tieneLuz'] : false,
-            isset($datos['tieneAlcantarillado']) ? (bool)$datos['tieneAlcantarillado'] : false,
-            isset($datos['tieneGas']) ? (bool)$datos['tieneGas'] : false,
-            isset($datos['tieneOtrosServicios']) ? (bool)$datos['tieneOtrosServicios'] : false,
-            $datos['nombreSensador']
-        );
+    $jefe = $datos['jefe_familia'] ?? 'Sin nombre';
+$doc  = $datos['documento'] ?? '0';
+$dir  = $datos['direccion'] ?? 'Sin dirección';
+$barr = $datos['barrio'] ?? 'Sin barrio';
+$cant = (int)($datos['cantidad_personas'] ?? 0);
+$estr = (int)($datos['estrato'] ?? 0);
+$obs  = $datos['observaciones'] ?? '';
 
-        // Lo guarda en la base de datos
-        $this->repository->save($censo);
+
+$censo = new Censo(
+    null,      
+    $jefe,     
+    $doc,     
+    $dir,         
+    $barr,         
+    $cant,         
+    $estr,          
+    $obs,            
+    (int)$datos['organizacion_id'],
+    $datos['nombre'],
+    new \DateTime($datos['fecha']),
+    $datos['pais'],
+    $datos['departamento'],
+    $datos['ciudad'],
+    $datos['casa'],
+    (int)$datos['numHombres'],
+    (int)$datos['numMujeres'],
+    (int)$datos['numAncianosHombres'],
+    (int)$datos['numAncianasMujeres'],
+    (int)$datos['numNinos'],
+    (int)$datos['numNinas'],
+    (int)$datos['numHabitaciones'],
+    (int)$datos['numCamas'],
+    (bool)($datos['tieneAgua'] ?? false),
+    (bool)($datos['tieneLuz'] ?? false),
+    (bool)($datos['tieneAlcantarillado'] ?? false),
+    (bool)($datos['tieneGas'] ?? false),
+    (bool)($datos['tieneOtrosServicios'] ?? false),
+    $datos['nombreSensador'] ?? 'Anonimo'
+);
+
+        $this->repository->save($censo, (int)$datos['organizacion_id']);
     }
 }
