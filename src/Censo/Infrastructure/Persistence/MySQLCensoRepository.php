@@ -10,24 +10,25 @@ class MySQLCensoRepository implements CensoRepository {
 
     public function __construct(private PDO $connection) {}
 
-    public function save(Censo $censo): void {
-        $sql = "INSERT INTO censos (
-            nombre, fecha, pais, departamento, ciudad, casa,
-            numHombres, numMujeres, numAncianosHombres, numAncianasMujeres,
-            numNinos, numNinas, numHabitaciones, numCamas,
-            tieneAgua, tieneLuz, tieneAlcantarillado, tieneGas,
-            tieneOtrosServicios, nombreSensador
-        ) VALUES (
-            :nombre, :fecha, :pais, :departamento, :ciudad, :casa,
-            :numHombres, :numMujeres, :numAncianosHombres, :numAncianasMujeres,
-            :numNinos, :numNinas, :numHabitaciones, :numCamas,
-            :tieneAgua, :tieneLuz, :tieneAlcantarillado, :tieneGas,
-            :tieneOtrosServicios, :nombreSensador
-        )";
-
-        $stmt = $this->connection->prepare($sql);
-        $stmt->execute($this->censoToArray($censo));
-    }
+    public function save(Censo $censo, int $orgId): void {
+    $sql = "INSERT INTO censos (
+        nombre, fecha, pais, departamento, ciudad, casa,
+        numHombres, numMujeres, numAncianosHombres, numAncianasMujeres,
+        numNinos, numNinas, numHabitaciones, numCamas,
+        tieneAgua, tieneLuz, tieneAlcantarillado, tieneGas,
+        tieneOtrosServicios, nombreSensador, organizacion_id
+    ) VALUES (
+        :nombre, :fecha, :pais, :departamento, :ciudad, :casa,
+        :numHombres, :numMujeres, :numAncianosHombres, :numAncianasMujeres,
+        :numNinos, :numNinas, :numHabitaciones, :numCamas,
+        :tieneAgua, :tieneLuz, :tieneAlcantarillado, :tieneGas,
+        :tieneOtrosServicios, :nombreSensador, :orgId
+    )";
+    $datos = $this->censoToArray($censo);
+    $datos['orgId'] = $orgId;
+    $stmt = $this->connection->prepare($sql);
+    $stmt->execute($datos);
+}
 
     public function findById(int $id): ?Censo {
         $stmt = $this->connection->prepare("SELECT * FROM censos WHERE id = :id");
@@ -40,16 +41,17 @@ class MySQLCensoRepository implements CensoRepository {
     }
 
     /** @return Censo[] */
-    public function findAll(): array {
-        $stmt = $this->connection->query("SELECT * FROM censos ORDER BY id DESC");
-        $censos = [];
-
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $censos[] = $this->rowToCenso($row);
-        }
-
-        return $censos;
+    public function findAll(int $orgId): array {
+    $stmt = $this->connection->prepare(
+        "SELECT * FROM censos WHERE organizacion_id = :org ORDER BY id DESC"
+    );
+    $stmt->execute(['org' => $orgId]);
+    $censos = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $censos[] = $this->rowToCenso($row);
     }
+    return $censos;
+}
 
     public function update(Censo $censo): void {
         $sql = "UPDATE censos SET

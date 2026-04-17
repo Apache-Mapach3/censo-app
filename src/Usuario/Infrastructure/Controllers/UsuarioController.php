@@ -23,39 +23,50 @@ class UsuarioController {
     ) {}
 
     public function registrar(array $request): void {
-        try {
+    try {
+        if (($request['rol'] ?? '') === 'admin') {
+            // Admin crea su propia organización
+            $this->crearOrganizacionConAdminUseCase->execute(
+                $request['nombre_org'] ?? ($request['nombre'] . ' Org'),
+                $request['nombre'] ?? '',
+                $request['clave']  ?? '',
+                $request['correo'] ?? ''
+            );
+        } else {
             $this->crearUseCase->execute(
                 $request['nombre'] ?? '',
                 $request['clave']  ?? '',
                 $request['rol']    ?? '',
                 $request['correo'] ?? ''
             );
-            header("Location: login.html?registered=1");
-            exit();
-        } catch (\Exception $e) {
-            echo "<p style='color:red;font-family:sans-serif;padding:20px'>Error: "
-                . htmlspecialchars($e->getMessage())
-                . " <a href='registro.html'>Volver</a></p>";
         }
+        header("Location: login.html?registered=1");
+        exit();
+    } catch (\Exception $e) {
+        echo "<p style='color:red;font-family:sans-serif;padding:20px'>Error: "
+            . htmlspecialchars($e->getMessage())
+            . " <a href='registro.html'>Volver</a></p>";
     }
+}
 
     public function login(array $request): void {
-        $usuario = $this->autenticarUseCase->execute(
-            $request['nombre'] ?? '',
-            $request['clave']  ?? ''
-        );
+    $usuario = $this->autenticarUseCase->execute(
+        $request['nombre'] ?? '',
+        $request['clave']  ?? ''
+    );
 
-        if ($usuario) {
-            $_SESSION['usuario_id']     = $usuario->getId();
-            $_SESSION['usuario_nombre'] = $usuario->getNombre();
-            $_SESSION['usuario_rol']    = $usuario->getRol();
-            header("Location: index.php?action=listar_censos");
-            exit();
-        } else {
-            echo "<p style='color:red;font-family:sans-serif;padding:20px'>Credenciales incorrectas. "
-                . "<a href='login.html'>Volver</a></p>";
-        }
+    if ($usuario) {
+        $_SESSION['usuario_id']      = $usuario->getId();
+        $_SESSION['usuario_nombre']  = $usuario->getNombre();
+        $_SESSION['usuario_rol']     = $usuario->getRol();
+        $_SESSION['organizacion_id'] = $usuario->getOrganizacionId(); // ← nuevo
+        header("Location: index.php?action=listar_censos");
+        exit();
+    } else {
+        echo "<p style='color:red;font-family:sans-serif;padding:20px'>
+            Credenciales incorrectas. <a href='login.html'>Volver</a></p>";
     }
+}
 
     public function listar(): void {
         $usuarios = $this->listarUseCase->execute();
