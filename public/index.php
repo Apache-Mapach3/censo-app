@@ -4,7 +4,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$orgId = (int)($_SESSION['organizacion_id'] ?? 0);
+session_start();
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
@@ -12,9 +13,9 @@ $dotenv->load();
 
 require_once __DIR__ . '/../config/database.php';
 
-session_start();
+$orgId = (int)($_SESSION['organizacion_id'] ?? 0);
 
-// MPORTACIÓN DE CLASES (USUARIO)
+// IMPORTACIÓN DE CLASES (USUARIO)
 use App\Usuario\Infrastructure\Persistence\MySQLUsuarioRepository;
 use App\Usuario\Infrastructure\Persistence\MySQLTokenRecuperacionRepository;
 use App\Usuario\Application\UseCase\CrearUsuarioUseCase;
@@ -27,6 +28,10 @@ use App\Usuario\Application\UseCase\RestablecerClaveUseCase;
 use App\Usuario\Infrastructure\Controllers\UsuarioController;
 use App\Usuario\Infrastructure\Mail\PHPMailerEmailSender;
 
+// IMPORTACIÓN DE CLASES (ORGANIZACIÓN)
+use App\Organizacion\Infrastructure\Persistence\MySQLOrganizacionRepository;
+use App\Organizacion\Application\UseCase\CrearOrganizacionConAdminUseCase;
+
 // IMPORTACIÓN DE CLASES (CENSO)
 use App\Censo\Infrastructure\Persistence\MySQLCensoRepository;
 use App\Censo\Application\UseCase\RegistrarCensoUseCase;
@@ -38,40 +43,44 @@ use App\Censo\Infrastructure\Controllers\CensoController;
 use App\Censo\Infrastructure\Controllers\ListarCensosController;
 use App\Censo\Infrastructure\Controllers\GestionarCensoController;
 
-// INICIALIZACIÓN DE OBJETOS
-
-// Repositorios y Servicios (Usuario)
+// REPOSITORIOS
 $usuarioRepo = new MySQLUsuarioRepository($pdo);
 $tokenRepo   = new MySQLTokenRecuperacionRepository($pdo);
-$emailSender = new PHPMailerEmailSender(); 
+$orgRepo     = new MySQLOrganizacionRepository($pdo);
+$emailSender = new PHPMailerEmailSender();
 
-// Controlador de Usuario (Configurado correctamente con sus 3 parámetros)
+// CONTROLADOR DE USUARIO — ahora recibe 9 parámetros (+ $orgRepo)
 $usuarioController = new UsuarioController(
-    new CrearUsuarioUseCase($usuarioRepo),
+    new CrearUsuarioUseCase($usuarioRepo, $orgRepo),
     new AutenticarUsuarioUseCase($usuarioRepo),
     new ListarUsuariosUseCase($usuarioRepo),
     new ActualizarUsuarioUseCase($usuarioRepo),
     new EliminarUsuarioUseCase($usuarioRepo),
-    new SolicitarRecuperacionUseCase($usuarioRepo, $tokenRepo, $emailSender), 
-    new RestablecerClaveUseCase($usuarioRepo, $tokenRepo)
+    new SolicitarRecuperacionUseCase($usuarioRepo, $tokenRepo, $emailSender),
+    new RestablecerClaveUseCase($usuarioRepo, $tokenRepo),
+    new CrearOrganizacionConAdminUseCase($orgRepo, $usuarioRepo),
+    $orgRepo 
 );
-
-// Repositorios y Controladores (Censo)
+// CONTROLADORES DE CENSO
 $censoRepo         = new MySQLCensoRepository($pdo);
-$censoController   = new CensoController(new RegistrarCensoUseCase($censoRepo));
+$actualizarUseCase = new ActualizarCensoUseCase($censoRepo);
+
+$censoController   = new CensoController(
+    new RegistrarCensoUseCase($censoRepo),
+    $actualizarUseCase
+);
 $listarController  = new ListarCensosController(new ListarCensosUseCase($censoRepo));
 $gestionController = new GestionarCensoController(
     new ObtenerCensoPorIdUseCase($censoRepo),
-    new ActualizarCensoUseCase($censoRepo),
+    $actualizarUseCase,
     new EliminarCensoUseCase($censoRepo)
 );
 
-// ENRUTADOR PRINCIPAL (SWITCH)
+// ENRUTADOR
 $action = $_POST['action'] ?? $_GET['action'] ?? null;
 
 switch ($action) {
 
-    // USUARIO — auth
     case 'register':
     case 'register_user':
         $usuarioController->registrar($_POST);
@@ -82,7 +91,6 @@ switch ($action) {
         $usuarioController->login($_POST);
         break;
 
-    // USUARIO — CRUDL
     case 'listar_usuarios':
         $usuarioController->listar($orgId);
         break;
@@ -100,7 +108,6 @@ switch ($action) {
         $usuarioController->eliminar($id);
         break;
 
-    // USUARIO — recuperar contraseña
     case 'recuperar_clave':
         $usuarioController->mostrarFormularioRecuperacion();
         break;
@@ -118,7 +125,6 @@ switch ($action) {
         $usuarioController->restablecerClave($_POST);
         break;
 
-    // CENSO
     case 'register_censo':
         $censoController->registrar($_POST, $orgId);
         break;
@@ -144,7 +150,6 @@ switch ($action) {
         $gestionController->eliminar($id);
         break;
 
-    // DEFAULT
     default:
         header("Location: login.html");
         exit();

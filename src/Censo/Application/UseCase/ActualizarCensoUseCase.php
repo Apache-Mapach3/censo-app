@@ -11,12 +11,16 @@ class ActualizarCensoUseCase {
 
     public function execute(int $id, array $datos): void {
 
+        // Obtener el censo existente para preservar campos no editables
+        $censoExistente = $this->repository->findById($id);
+        if (!$censoExistente) {
+            throw new \InvalidArgumentException("Censo con id $id no encontrado");
+        }
+
         $camposRequeridos = [
             'nombre', 'fecha', 'pais', 'departamento', 'ciudad', 'casa',
             'numHombres', 'numMujeres', 'numAncianosHombres', 'numAncianasMujeres',
-            'numNinos', 'numNinas', 'numHabitaciones', 'numCamas',
-            'tieneAgua', 'tieneLuz', 'tieneAlcantarillado', 'tieneGas',
-            'tieneOtrosServicios', 'nombreSensador'
+            'numNinos', 'numNinas', 'numHabitaciones', 'numCamas', 'nombreSensador'
         ];
 
         foreach ($camposRequeridos as $campo) {
@@ -33,6 +37,14 @@ class ActualizarCensoUseCase {
 
         $censo = new Censo(
             $id,
+            $censoExistente->getJefeFamilia(),
+            $censoExistente->getDocumento(),
+            $censoExistente->getDireccion(),
+            $censoExistente->getBarrio(),
+            $censoExistente->getCantidadPersonas(),
+            $censoExistente->getEstrato(),
+            $censoExistente->getObservaciones(),
+            $censoExistente->getOrganizacionId(),
             $datos['nombre'],
             $fecha,
             $datos['pais'],
@@ -47,11 +59,11 @@ class ActualizarCensoUseCase {
             (int)$datos['numNinas'],
             (int)$datos['numHabitaciones'],
             (int)$datos['numCamas'],
-            (bool)$datos['tieneAgua'],
-            (bool)$datos['tieneLuz'],
-            (bool)$datos['tieneAlcantarillado'],
-            (bool)$datos['tieneGas'],
-            (bool)$datos['tieneOtrosServicios'],
+            (bool)($datos['tieneAgua']          ?? false),
+            (bool)($datos['tieneLuz']           ?? false),
+            (bool)($datos['tieneAlcantarillado'] ?? false),
+            (bool)($datos['tieneGas']           ?? false),
+            (bool)($datos['tieneOtrosServicios'] ?? false),
             $datos['nombreSensador']
         );
 

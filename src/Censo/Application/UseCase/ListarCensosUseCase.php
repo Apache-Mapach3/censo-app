@@ -8,7 +8,7 @@ class ListarCensosUseCase {
 
     public function __construct(private CensoRepository $repository) {}
 
-    public function execute(): array {
-        return $this->repository->findAll();
+    public function execute(?int $orgId = null): array {
+        return $this->repository->findAll($orgId);
     }
 }

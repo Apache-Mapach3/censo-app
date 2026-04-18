@@ -17,14 +17,66 @@
             --red:    #dc3545;
         }
         body { font-family: 'DM Sans', sans-serif; background: var(--light); }
+
         .topbar {
             background: var(--navy); color: var(--white);
-            padding: 14px 32px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 32px;
+            height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .topbar .brand { font-family: 'DM Serif Display', serif; font-size: 20px; display: flex; align-items: center; gap: 10px; }
-        .topbar-right { display: flex; align-items: center; gap: 20px; font-size: 13px; }
-        .topbar-right span { color: rgba(255,255,255,.55); }
-        .topbar-right a { color: var(--gold); text-decoration: none; font-weight: 600; }
+        .topbar-left {
+            display: flex; align-items: center; gap: 16px;
+        }
+        .brand {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .org-badge {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 13px;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+        .org-badge span.dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+            display: inline-block;
+        }
+        .topbar-right {
+            display: flex; align-items: center; gap: 20px; font-size: 13px;
+        }
+        .user-info {
+            display: flex; align-items: center; gap: 8px;
+            color: rgba(255,255,255,0.7);
+        }
+        .role-tag {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 0.5px;
+        }
+        .topbar-right a {
+            color: var(--gold); text-decoration: none; font-weight: 600;
+            transition: opacity .2s;
+        }
+        .topbar-right a:hover { opacity: .8; }
+        .topbar-right a.logout {
+            color: rgba(255,255,255,0.5);
+            font-weight: 400;
+        }
+        .topbar-right a.logout:hover { color: var(--white); }
+
         .container { max-width: 1100px; margin: 32px auto; padding: 0 20px; }
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .header h2 { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--navy); }
@@ -54,8 +106,6 @@
             transition: background .2s; white-space: nowrap;
         }
         .btn-edit:hover { background: #c88a1a; }
-        /* BUG CORREGIDO: el botón eliminar ahora está dentro de un form
-           que envía el id por POST y el action apunta correctamente */
         .btn-delete {
             background: var(--red); color: var(--white); padding: 6px 14px;
             border-radius: 6px; border: none; font-family: 'DM Sans', sans-serif;
@@ -71,22 +121,30 @@
 <body>
 
 <div class="topbar">
-    <div class="brand">🗺️ CensoApp</div>
-    <div class="topbar-right" style="display: flex; gap: 20px; align-items: center;">
-        
+    <div class="topbar-left">
+        <div class="brand">🗺️ CensoApp</div>
+
+        <?php if (!empty($_SESSION['organizacion_nombre'])): ?>
+            <div class="org-badge">
+                <span class="dot"></span>
+                <?= htmlspecialchars($_SESSION['organizacion_nombre']) ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="topbar-right">
         <?php if (!empty($_SESSION['usuario_nombre'])): ?>
-            <span>👤 <?= htmlspecialchars($_SESSION['usuario_nombre']) ?>
-                (<?= htmlspecialchars($_SESSION['usuario_rol'] ?? '') ?>)</span>
+            <div class="user-info">
+                👤 <?= htmlspecialchars($_SESSION['usuario_nombre']) ?>
+                <span class="role-tag"><?= htmlspecialchars($_SESSION['usuario_rol'] ?? '') ?></span>
+            </div>
         <?php endif; ?>
 
         <?php if (($_SESSION['usuario_rol'] ?? '') === 'admin'): ?>
-            <a href="index.php?action=listar_usuarios" style="color: #e8a020; text-decoration: none; font-weight: 600;">
-                👥 Gestionar Usuarios
-            </a>
+            <a href="index.php?action=listar_usuarios">👥 Usuarios</a>
         <?php endif; ?>
 
-        <a href="login.html" style="color: white; text-decoration: none;">Cerrar sesión</a>
-        
+        <a href="login.html" class="logout">Cerrar sesión</a>
     </div>
 </div>
 
@@ -134,7 +192,6 @@
                                 <div class="actions-cell">
                                     <a href="index.php?action=editar_censo&id=<?= $censo->getId() ?>"
                                     class="btn-edit">Editar</a>
-
                                     <form action="index.php" method="POST" style="display:inline"
                                         onsubmit="return confirm('¿Eliminar este censo de forma permanente?')">
                                         <input type="hidden" name="action" value="eliminar_censo">
@@ -151,7 +208,8 @@
                             <div class="empty">
                                 <div class="empty-icon">📋</div>
                                 No hay censos registrados todavía.<br>
-                                <a href="index.php?action=mostrar_registro" style="color:var(--teal);font-weight:600">
+                                <a href="index.php?action=mostrar_registro"
+                                style="color:var(--teal);font-weight:600">
                                     Registra el primero
                                 </a>
                             </div>
