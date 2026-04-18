@@ -7,4 +7,5 @@ interface OrganizacionRepository {
     public function save(Organizacion $org): int;   // retorna el id generado
     public function findById(int $id): ?Organizacion;
     public function findByCodigo(string $codigo): ?Organizacion;
+    public function findByNombre(string $nombre): ?int;
 }

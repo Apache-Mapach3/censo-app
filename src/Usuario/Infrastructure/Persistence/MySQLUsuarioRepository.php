@@ -11,18 +11,18 @@ class MySQLUsuarioRepository implements UsuarioRepository {
     public function __construct(private PDO $pdo) {}
 
     public function save(Usuario $usuario): void {
-    $stmt = $this->pdo->prepare(
-        "INSERT INTO usuarios (nombre, correo, clave, rol, organizacion_id)
-        VALUES (?, ?, ?, ?, ?)"
-    );
-    $stmt->execute([
-        $usuario->getNombre(),
-        $usuario->getCorreo(),
-        $usuario->getClave(),
-        $usuario->getRol(),
-        null,  
-    ]);
-}
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO usuarios (nombre, correo, clave, rol, organizacion_id)
+             VALUES (?, ?, ?, ?, ?)"
+        );
+        $stmt->execute([
+            $usuario->getNombre(),
+            $usuario->getCorreo(),
+            $usuario->getClave(),
+            $usuario->getRol(),
+            $usuario->getOrganizacionId(),
+        ]);
+    }
 
     public function findById(int $id): ?Usuario {
         $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE id = ?");
@@ -32,21 +32,27 @@ class MySQLUsuarioRepository implements UsuarioRepository {
     }
 
     /** @return Usuario[] */
-    public function findAll(int $orgId): array {
-    $stmt = $this->pdo->prepare(
-        "SELECT * FROM usuarios WHERE organizacion_id = ? ORDER BY id DESC"
-    );
-    $stmt->execute([$orgId]);
-    $usuarios = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $usuarios[] = $this->rowToUsuario($row);
+    public function findAll(?int $orgId = null): array {
+        if ($orgId !== null) {
+            $stmt = $this->pdo->prepare(
+                "SELECT * FROM usuarios WHERE organizacion_id = ? ORDER BY id DESC"
+            );
+            $stmt->execute([$orgId]);
+        } else {
+            $stmt = $this->pdo->query("SELECT * FROM usuarios ORDER BY id DESC");
+        }
+
+        $usuarios = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $usuarios[] = $this->rowToUsuario($row);
+        }
+        return $usuarios;
     }
-    return $usuarios;
-}
 
     public function update(Usuario $usuario): void {
         $stmt = $this->pdo->prepare(
-            "UPDATE usuarios SET nombre = :nombre, correo = :correo, clave = :clave, rol = :rol WHERE id = :id"
+            "UPDATE usuarios SET nombre = :nombre, correo = :correo, clave = :clave,
+             rol = :rol WHERE id = :id"
         );
         $stmt->execute([
             'nombre' => $usuario->getNombre(),
@@ -82,28 +88,28 @@ class MySQLUsuarioRepository implements UsuarioRepository {
         return (int)$stmt->fetchColumn() > 0;
     }
 
-    private function rowToUsuario(array $row): Usuario {
-    return new Usuario(
-        (int)$row['id'],
-        $row['nombre'],
-        $row['clave'],
-        $row['rol'],
-        $row['correo'] ?? '',
-        isset($row['organizacion_id']) ? (int)$row['organizacion_id'] : null 
-    );
-}
-
     public function saveConOrg(Usuario $usuario, int $orgId): void {
-    $stmt = $this->pdo->prepare(
-        "INSERT INTO usuarios (nombre, correo, clave, rol, organizacion_id)
-        VALUES (?, ?, ?, ?, ?)"
-    );
-    $stmt->execute([
-        $usuario->getNombre(),
-        $usuario->getCorreo(),
-        $usuario->getClave(),
-        $usuario->getRol(),
-        $orgId,
-    ]);
-}
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO usuarios (nombre, correo, clave, rol, organizacion_id)
+             VALUES (?, ?, ?, ?, ?)"
+        );
+        $stmt->execute([
+            $usuario->getNombre(),
+            $usuario->getCorreo(),
+            $usuario->getClave(),
+            $usuario->getRol(),
+            $orgId,
+        ]);
+    }
+
+    private function rowToUsuario(array $row): Usuario {
+        return new Usuario(
+            (int)$row['id'],
+            $row['nombre'],
+            $row['clave'],
+            $row['rol'],
+            $row['correo'] ?? '',
+            isset($row['organizacion_id']) ? (int)$row['organizacion_id'] : null
+        );
+    }
 }

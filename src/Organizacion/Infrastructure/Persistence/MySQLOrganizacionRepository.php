@@ -10,12 +10,14 @@ class MySQLOrganizacionRepository implements OrganizacionRepository {
 
     public function __construct(private PDO $pdo) {}
 
-    public function save(Organizacion $org): int {
-        $stmt = $this->pdo->prepare(
-            "INSERT INTO organizaciones (nombre, codigo) VALUES (?, ?)"
-        );
-        $stmt->execute([$org->getNombre(), $org->getCodigo()]);
-        return (int)$this->pdo->lastInsertId();
+    public function save(Organizacion $organizacion): int 
+    {
+        $sql = "INSERT INTO organizaciones (nombre) VALUES (:nombre)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':nombre' => $organizacion->getNombre()
+        ]);
+        return (int) $this->pdo->lastInsertId();
     }
 
     public function findById(int $id): ?Organizacion {
@@ -30,5 +32,15 @@ class MySQLOrganizacionRepository implements OrganizacionRepository {
         $stmt->execute([$codigo]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? new Organizacion((int)$row['id'], $row['nombre'], $row['codigo']) : null;
+    }
+
+    public function findByNombre(string $nombre): ?int
+    {
+        $sql = "SELECT id FROM organizaciones WHERE nombre = :nombre LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':nombre' => trim($nombre)]);
+        $row = $stmt->fetch();
+        
+        return $row ? (int) $row['id'] : null;
     }
 }

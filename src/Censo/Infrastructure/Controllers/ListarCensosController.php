@@ -8,9 +8,8 @@ class ListarCensosController {
 
     public function __construct(private ListarCensosUseCase $listarCensosUseCase) {}
 
-    public function listar(): void {
-        $censos = $this->listarCensosUseCase->execute();
-        // Pasamos los datos a la vista
+    public function listar(?int $orgId = null): void {
+        $censos = $this->listarCensosUseCase->execute($orgId);
         require_once __DIR__ . '/../../../../public/views/listar_censos.php';
     }
 }

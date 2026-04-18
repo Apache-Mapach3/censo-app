@@ -13,33 +13,28 @@ class CrearOrganizacionConAdminUseCase {
         private UsuarioRepository      $usuarioRepo
     ) {}
 
-    public function execute(
-        string $nombreOrg,
-        string $nombreAdmin,
-        string $clavePlana,
-        string $correo
-    ): int {
-        // Generar código único para la org a partir del nombre del admin
-        $codigo = $this->generarCodigo($nombreAdmin);
-
-        if ($this->orgRepo->findByCodigo($codigo)) {
-            $codigo .= '_' . random_int(100, 999);
+    public function execute(string $nombreOrg, string $nombreAdmin, string $clavePlana, string $correo): void
+    {
+        // Validar que no lleguen vacíos
+        if (empty($nombreAdmin) || empty($nombreOrg)) {
+            throw new \InvalidArgumentException("El nombre del administrador y de la organización son obligatorios.");
         }
 
-        if ($this->usuarioRepo->existsByNombre($nombreAdmin)) {
-            throw new \InvalidArgumentException("El nombre de usuario '$nombreAdmin' ya está en uso");
-        }
+        // crear la Organización usando $nombreOrg
+        // IMPORTANTE: Asegúrate de que el constructor de Organizacion reciba primero el ID (null) y luego el nombre
+        $organizacion = new \App\Organizacion\Domain\Model\Organizacion(null, $nombreOrg);
+        
+        // Guardar y obtener el ID generado
+        $orgId = $this->organizacionRepository->save($organizacion);
 
-        // 1. Crear la organización
-        $org   = new Organizacion(null, $nombreOrg, $codigo);
-        $orgId = $this->orgRepo->save($org);
 
-        // 2. Crear el usuario admin ligado a esa org
-        $hash    = password_hash($clavePlana, PASSWORD_DEFAULT);
-        $usuario = new Usuario(null, $nombreAdmin, $hash, 'admin', $correo);
-        $this->usuarioRepo->saveConOrg($usuario, $orgId);
+        $claveHash = password_hash($clavePlana, PASSWORD_DEFAULT);
 
-        return $orgId;
+        // IMPORTANTE: Asegúrate de que el constructor de Usuario esté en este orden: id, nombre, correo, clave, rol, organizacion_id
+        $admin = new \App\Usuario\Domain\Model\Usuario(null, $nombreAdmin, $correo, $claveHash, 'admin', $orgId);
+        
+        // Guardar el usuario
+        $this->usuarioRepository->save($admin);
     }
 
     private function generarCodigo(string $nombre): string {
