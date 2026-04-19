@@ -5,14 +5,9 @@
     }
   },
   "routes": [
-    {
-      "src": "/(.*\\.php)$",
-      "dest": "/api/index.php"
-    },
-    { "handle": "filesystem" },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.php"
-    }
+    { "src": "/(.*\\.html)", "dest": "/$1" },
+    { "src": "/(.*\\.css)", "dest": "/$1" },
+    { "src": "/(.*\\.js)", "dest": "/$1" },
+    { "src": "/(.*)", "dest": "/api/index.php" }
   ]
 }
