@@ -20,9 +20,11 @@ class CrearOrganizacionConAdminUseCase {
             throw new \InvalidArgumentException("El nombre del administrador y de la organización son obligatorios.");
         }
 
-        // crear la Organización usando $nombreOrg
-        // IMPORTANTE: Asegúrate de que el constructor de Organizacion reciba primero el ID (null) y luego el nombre
-        $organizacion = new \App\Organizacion\Domain\Model\Organizacion(null, $nombreOrg);
+
+        $slugBase = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '_', $nombreOrganizacion)));
+        $codigoUnico = $slugBase . '_' . uniqid(); 
+
+        $organizacion = new Organizacion(null, $nombreOrganizacion, $codigoUnico);
         
         // Guardar y obtener el ID generado
         $orgId = $this->organizacionRepository->save($organizacion);
