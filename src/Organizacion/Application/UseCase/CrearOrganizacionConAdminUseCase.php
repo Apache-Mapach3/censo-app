@@ -20,23 +20,18 @@ class CrearOrganizacionConAdminUseCase {
             throw new \InvalidArgumentException("El nombre del administrador y de la organización son obligatorios.");
         }
 
-
-
         $slugBase = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '_', $nombreOrg)));
         $codigoUnico = $slugBase . '_' . uniqid(); 
         $organizacion = new Organizacion(null, $nombreOrg, $codigoUnico);
         
-        // Guardar y obtener el ID generado
-        $orgId = $this->organizacionRepository->save($organizacion);
-
+        // Guardar y obtener el ID generado (usando $this->orgRepo)
+        $orgId = $this->orgRepo->save($organizacion);
 
         $claveHash = password_hash($clavePlana, PASSWORD_DEFAULT);
-
-        // IMPORTANTE: Asegúrate de que el constructor de Usuario esté en este orden: id, nombre, correo, clave, rol, organizacion_id
         $admin = new \App\Usuario\Domain\Model\Usuario(null, $nombreAdmin, $correo, $claveHash, 'admin', $orgId);
         
-        // Guardar el usuario
-        $this->usuarioRepository->save($admin);
+        // Guardar el usuario (usando $this->usuarioRepo)
+        $this->usuarioRepo->save($admin);
     }
 
     private function generarCodigo(string $nombre): string {
