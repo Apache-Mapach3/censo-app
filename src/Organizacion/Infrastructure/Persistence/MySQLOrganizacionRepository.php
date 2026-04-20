@@ -12,11 +12,16 @@ class MySQLOrganizacionRepository implements OrganizacionRepository {
 
     public function save(Organizacion $organizacion): int 
     {
-        $sql = "INSERT INTO organizaciones (nombre) VALUES (:nombre)";
+        // 1. Añadimos la columna 'codigo' y su respectivo parámetro ':codigo'
+        $sql = "INSERT INTO organizaciones (nombre, codigo) VALUES (:nombre, :codigo)";
         $stmt = $this->pdo->prepare($sql);
+        
+        // 2. Le pasamos ambos valores al arreglo de ejecución
         $stmt->execute([
-            ':nombre' => $organizacion->getNombre()
+            ':nombre' => $organizacion->getNombre(),
+            ':codigo' => $organizacion->getCodigo()
         ]);
+        
         return (int) $this->pdo->lastInsertId();
     }
 
