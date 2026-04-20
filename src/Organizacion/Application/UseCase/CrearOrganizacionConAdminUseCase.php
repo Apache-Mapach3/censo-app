@@ -28,7 +28,7 @@ class CrearOrganizacionConAdminUseCase {
         $orgId = $this->orgRepo->save($organizacion);
 
         $claveHash = password_hash($clavePlana, PASSWORD_DEFAULT);
-        $admin = new \App\Usuario\Domain\Model\Usuario(null, $nombreAdmin, $correo, $claveHash, 'admin', $orgId);
+        $admin = new \App\Usuario\Domain\Model\Usuario(null, $nombreAdmin, $claveHash, 'admin', $correo, $orgId);
         
         // Guardar el usuario (usando $this->usuarioRepo)
         $this->usuarioRepo->save($admin);
