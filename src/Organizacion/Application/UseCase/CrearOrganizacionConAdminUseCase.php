@@ -21,10 +21,10 @@ class CrearOrganizacionConAdminUseCase {
         }
 
 
-        $slugBase = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '_', $nombreOrganizacion)));
-        $codigoUnico = $slugBase . '_' . uniqid(); 
 
-        $organizacion = new Organizacion(null, $nombreOrganizacion, $codigoUnico);
+        $slugBase = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '_', $nombreOrg)));
+        $codigoUnico = $slugBase . '_' . uniqid(); 
+        $organizacion = new Organizacion(null, $nombreOrg, $codigoUnico);
         
         // Guardar y obtener el ID generado
         $orgId = $this->organizacionRepository->save($organizacion);
